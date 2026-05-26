@@ -1,0 +1,14 @@
+﻿From: alice.smith@legitimate-company.com
+To: bob.jones@yourcompany.com
+Subject: Q3 Budget Report
+Message-ID: <q3report.2024@legitimate-company.com>
+Date: Mon, 14 Oct 2024 09:00:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=pass smtp.mailfrom=legitimate-company.com;
+  dkim=pass header.d=legitimate-company.com;
+  dmarc=pass
+Hi Bob,
+Please find the Q3 budget report attached as discussed.
+Figures look positive - we are 8% ahead of target.
+Best regards,
+Alice Smith

@@ -1,0 +1,48 @@
+
+
+services:
+  backend:
+    build: ./backend
+    container_name: phishing-triage-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./data:/data
+    environment:
+      - DATABASE_URL=sqlite:////data/triage.db
+      - VT_API_KEY=${VT_API_KEY:-MOCK}
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-MOCK}
+      - MISP_URL=${MISP_URL:-MOCK}
+      - MISP_API_KEY=${MISP_API_KEY:-MOCK}
+      - THEHIVE_URL=${THEHIVE_URL:-MOCK}
+      - THEHIVE_API_KEY=${THEHIVE_API_KEY:-MOCK}
+      - USE_MOCK_STUBS=${USE_MOCK_STUBS:-true}
+      - NIS2_ORG_NAME=${NIS2_ORG_NAME:-"Demo Organisation"}
+    depends_on:
+      - mock-stubs
+    restart: unless-stopped
+
+  mock-stubs:
+    build: ./backend
+    container_name: phishing-triage-stubs
+    command: uvicorn app.stubs.server:app --host 0.0.0.0 --port 9000 --reload
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: phishing-triage-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  data:

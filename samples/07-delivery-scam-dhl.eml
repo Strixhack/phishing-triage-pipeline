@@ -1,0 +1,17 @@
+﻿From: delivery@dhl-parcel-phish-update.com
+To: recipient@yourcompany.com
+Subject: Your DHL parcel could not be delivered - action required
+Message-ID: <dhl.phish.delivery@dhl-parcel-phish-update.com>
+Date: Thu, 17 Oct 2024 14:00:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=softfail smtp.mailfrom=dhl-parcel-phish-update.com;
+  dkim=none;
+  dmarc=fail
+Dear Customer,
+We attempted to deliver your parcel but were unsuccessful.
+Tracking number: JD014600006251234
+Fee outstanding: EUR 2.99
+Pay the small redelivery fee to release your parcel:
+http://phish-dhl-redelivery.malware-harvest.com/pay?track=JD014600006251234
+Your parcel will be returned after 5 days.
+DHL Express

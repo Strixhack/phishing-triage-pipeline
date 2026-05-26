@@ -1,0 +1,18 @@
+﻿From: security-alert@paypal-malware-phish-account.com
+To: victim@yourcompany.com
+Reply-To: harvest@malware-phish-attacker.ru
+Subject: URGENT: Your account has been suspended - verify now
+Message-ID: <alert.malware.phish@paypal-malware-phish-account.com>
+Date: Mon, 14 Oct 2024 13:00:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=fail smtp.mailfrom=paypal-malware-phish-account.com;
+  dkim=fail header.d=paypal-malware-phish-account.com;
+  dmarc=fail
+Dear Customer,
+We detected unusual activity. Your account is suspended pending verification.
+Click immediately to avoid permanent closure:
+http://malware-phish-exploit.evil-trojan.com/paypal/login?token=abc123
+http://malware-phish-ransom.badactor.net/steal-credentials?user=victim
+http://malware-phish-harvest.attacker.ru/confirm?id=99887
+Failure to verify within 24 hours results in permanent suspension.
+Security Team

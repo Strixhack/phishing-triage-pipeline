@@ -1,0 +1,19 @@
+﻿From: ceo.johnson@yourcompany-corp.net
+To: cfo@yourcompany.com
+Reply-To: ceo.johnson@gmail.com
+Subject: Urgent wire transfer needed today
+Message-ID: <ceo.urgent.2024@yourcompany-corp.net>
+Date: Mon, 14 Oct 2024 08:00:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=fail smtp.mailfrom=yourcompany-corp.net;
+  dkim=fail;
+  dmarc=fail
+Hi,
+I need you to process an urgent wire transfer of EUR 87,500 to a new vendor.
+I am in a board meeting and cannot talk. Please action immediately.
+Bank: Deutsche Bank
+IBAN: DE89370400440532013000
+Reference: Project Aurora
+Do not discuss with anyone else - this is confidential.
+Thanks
+Robert Johnson, CEO

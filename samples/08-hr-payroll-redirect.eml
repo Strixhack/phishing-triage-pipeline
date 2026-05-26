@@ -1,0 +1,17 @@
+﻿From: hr.payroll@yourcompany-hr-malware.com
+To: employee@yourcompany.com
+Reply-To: payroll@malware-phish-outsource.ru
+Subject: Action Required: Update your bank details for payroll
+Message-ID: <hr.payroll.malware@yourcompany-hr-malware.com>
+Date: Fri, 18 Oct 2024 09:30:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=fail smtp.mailfrom=yourcompany-hr-malware.com;
+  dkim=fail;
+  dmarc=fail
+Dear Employee,
+Due to our new payroll system migration, all employees must update
+their bank details by end of week.
+Update your details here:
+http://malware-phish-payroll.credential-steal.com/update-bank?emp=12345
+Failure to update will result in delayed salary payment.
+HR Department

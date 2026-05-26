@@ -1,0 +1,17 @@
+﻿From: invoices@supplier-portal-update.com
+To: accounts@yourcompany.com
+Reply-To: payments@different-domain.ru
+Subject: URGENT: Invoice #INV-2024-8821 Payment Required
+Message-ID: <inv8821@supplier-portal-update.com>
+Date: Mon, 14 Oct 2024 11:30:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=softfail smtp.mailfrom=supplier-portal-update.com;
+  dkim=none;
+  dmarc=fail
+Dear Accounts Team,
+Please process the attached invoice immediately to avoid service disruption.
+Amount: EUR 4,850.00 - Due: IMMEDIATE
+Verify your payment details at:
+http://supplier-portal-update.com/verify-payment?ref=8821
+Regards,
+Supplier Portal Team

@@ -1,0 +1,18 @@
+﻿From: soc-alert@security-malware-phish-monitor.com
+To: admin@yourcompany.com
+Reply-To: incident@malware-phish-response.ru
+Subject: CRITICAL: Ransomware exploit detected on your network
+Message-ID: <critical.malware.phish.ransom@security-malware-phish-monitor.com>
+Date: Sat, 19 Oct 2024 03:00:00 +0000
+Authentication-Results: mx.yourcompany.com;
+  spf=fail smtp.mailfrom=security-malware-phish-monitor.com;
+  dkim=fail;
+  dmarc=fail
+CRITICAL SECURITY ALERT
+Ransomware exploit activity detected on your network.
+Affected systems: 14 endpoints
+You must install the emergency security patch immediately:
+http://malware-ransom-phish-exploit.attacker.com/patch/emergency.exe
+http://malware-phish-trojan.badactor.net/security-tool?key=CRITICAL
+Failure to act in the next 2 hours will result in full network encryption.
+SOC Monitoring Team
