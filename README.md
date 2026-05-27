@@ -1,6 +1,6 @@
-# Phishing Triage Pipeline
+﻿# Phishing Triage Pipeline
 
-Automated SOC phishing email triage platform. Upload a `.eml` file — the pipeline parses headers, extracts IOCs, enriches them against VirusTotal, AbuseIPDB and MISP, runs YARA rules, maps MITRE ATT&CK techniques, scores risk 0-100, creates a TheHive case, runs Cortex analysers, tracks NIS2 Article 23 deadlines, and detects coordinated phishing campaigns.
+Automated SOC phishing email triage platform. Upload a `.eml` file â€” the pipeline parses headers, extracts IOCs, enriches them against VirusTotal, AbuseIPDB and MISP, runs YARA rules, maps MITRE ATT&CK techniques, scores risk 0-100, creates a TheHive case, runs Cortex analysers, tracks NIS2 Article 23 deadlines, and detects coordinated phishing campaigns.
 
 Built as a portfolio project targeting EU SOC intern and L1 analyst roles.
 
@@ -15,35 +15,35 @@ docker compose up --build
 
 Open http://localhost:3000
 
-Sample emails are in `samples/` — upload any `.eml` to get started.
+Sample emails are in `samples/` â€” upload any `.eml` to get started.
 
 ## Screenshots
 
-### Dashboard — verdict distribution, case stats, recent cases
-![Dashboard](screenshots/dashboard.png)
+### Dashboard â€” verdict distribution, case stats, recent cases
+![Dashboard](docs/screenshots/dashboard.png)
 
-### Upload — triage result with MITRE ATT&CK mapping and Cortex analysis
-![Upload](screenshots/localhost_3000_upload.png)
+### Upload â€” triage result with MITRE ATT&CK mapping and Cortex analysis
+![Upload](docs/screenshots/localhost_3000_upload.png)
 
-### Case Detail — IOC table with real VT/AbuseIPDB scores, audit log, NIS2 status
-![Case Detail](screenshots/localhost_3000_cases.png)
+### Case Detail â€” IOC table with real VT/AbuseIPDB scores, audit log, NIS2 status
+![Case Detail](docs/screenshots/localhost_3000_cases.png)
 
-### NIS2 Compliance — Article 23 timers, significant cases sorted by urgency
-![NIS2](screenshots/NIS2.png)
+### NIS2 Compliance â€” Article 23 timers, significant cases sorted by urgency
+![NIS2](docs/screenshots/NIS2.png)
 
-### Campaign Detection — clusters phishing emails by shared IOCs and sender patterns
-![Campaigns](screenshots/localhost_3000_campaigns.png)
+### Campaign Detection â€” clusters phishing emails by shared IOCs and sender patterns
+![Campaigns](docs/screenshots/localhost_3000_campaigns.png)
 
-### API Documentation — Swagger UI, all endpoints
-![API Docs](screenshots/localhost_8000_api_docs.png)
+### API Documentation â€” Swagger UI, all endpoints
+![API Docs](docs/screenshots/localhost_8000_api_docs.png)
 
 ## What it does
 
 A real phishing email (`sample-1159.eml` from phishing_pot honeypot) scored **38/100 SUSPICIOUS** with:
 
-- URL `https://mail.contianer.best` — **75% VT detections**, flagged **malicious** by Cortex
-- IP `27.112.189.185` — AbuseIPDB score **16**, flagged **suspicious** by Cortex
-- IP `185.189.112.27` — AbuseIPDB score **4**
+- URL `https://mail.contianer.best` â€” **75% VT detections**, flagged **malicious** by Cortex
+- IP `27.112.189.185` â€” AbuseIPDB score **16**, flagged **suspicious** by Cortex
+- IP `185.189.112.27` â€” AbuseIPDB score **4**
 - **5 MITRE ATT&CK techniques** mapped: T1566.002, T1071.001, T1204.001, T1566, T1583.001
 - TheHive case **~681377** auto-created
 - **3 IOCs** analysed by Cortex
@@ -54,7 +54,7 @@ A real phishing email (`sample-1159.eml` from phishing_pot honeypot) scored **38
 |---|---|
 | Email parsing | SPF/DKIM/DMARC from Authentication-Results header, IOC extraction via regex |
 | IOC types | URLs, IPs (RFC-1918 filtered), domains, SHA256/SHA1/MD5 hashes |
-| Enrichment | VirusTotal v3, AbuseIPDB v2, MISP — async parallel per IOC |
+| Enrichment | VirusTotal v3, AbuseIPDB v2, MISP â€” async parallel per IOC |
 | YARA scanning | 7 rules: credential harvest, BEC, macro malware, ransomware, dropper, fake login |
 | MITRE ATT&CK | Automatic technique mapping from IOCs, auth results, heuristics, YARA matches |
 | Risk scoring | VT 35% + AbuseIPDB 20% + MISP 20% + Auth 15% + Heuristics 10% = 0-100 |
@@ -63,7 +63,7 @@ A real phishing email (`sample-1159.eml` from phishing_pot honeypot) scored **38
 | TheHive | Auto case creation: TLP:AMBER, severity 1-3, tags, enriched IOC summary |
 | Cortex | Top 3 IOCs analysed: VirusTotal_GetReport, URLhaus, DomainTools, Abuse_Finder, MalwareBazaar |
 | Campaign detection | Clusters emails by sender domain similarity, subject template, URL domain overlap |
-| Audit log | Append-only — every action recorded: upload, scoring, TheHive, Cortex, analyst changes |
+| Audit log | Append-only â€” every action recorded: upload, scoring, TheHive, Cortex, analyst changes |
 | Mock stubs | Full offline demo without API keys, deterministic scores for reproducible demo |
 
 ## Stack
@@ -74,7 +74,7 @@ A real phishing email (`sample-1159.eml` from phishing_pot honeypot) scored **38
 | Enrichment | VirusTotal v3, AbuseIPDB v2, MISP REST, TheHive REST, Cortex REST |
 | Detection | yara-python, MITRE ATT&CK static mapping |
 | Frontend | React 18, React Router, Recharts, Vite |
-| Infra | Docker Compose — 3 services: API :8000, UI :3000, mock stubs :9000 |
+| Infra | Docker Compose â€” 3 services: API :8000, UI :3000, mock stubs :9000 |
 | Compliance | NIS2 Article 23 (EU 2022/2555) |
 
 ## Risk Scoring Model
@@ -97,15 +97,15 @@ Cases with verdict MALICIOUS or risk score >= 55 are flagged as significant inci
 - `notification_due` = detected_at + 72h
 - NIS2 dashboard shows all significant cases sorted by urgency
 - Overdue cases highlighted in red
-- Analyst clicks Mark as Notified — recorded in immutable audit log
+- Analyst clicks Mark as Notified â€” recorded in immutable audit log
 
 ## Campaign Detection
 
 The `/api/campaigns/` endpoint clusters all cases in the database using:
 
-- Sender domain similarity — exact match 1.0, same TLD+1 match 0.5
-- Subject template similarity — token overlap after stripping variable parts (IDs, dates, tokens)
-- URL domain overlap — fraction of shared domains across emails
+- Sender domain similarity â€” exact match 1.0, same TLD+1 match 0.5
+- Subject template similarity â€” token overlap after stripping variable parts (IDs, dates, tokens)
+- URL domain overlap â€” fraction of shared domains across emails
 
 Cases with combined similarity >= 0.12 are grouped into a campaign. In testing with 26 uploaded emails, 6 campaigns were detected including CAMP-0002 with 7 cases sharing `malware-phish` URL domains.
 
@@ -156,14 +156,14 @@ Free VirusTotal API: 4 requests/minute. Triage of emails with many IOCs will tak
 
 ## Known Limitations
 
-- Free VT API rate-limited to 4 req/min — slows on IOC-heavy emails
-- SQLite used for portability — PostgreSQL recommended for production
-- Campaign detection tuned for demo volumes — threshold may need adjustment at scale
-- YARA scans body text only — attachment byte scanning not yet implemented
+- Free VT API rate-limited to 4 req/min â€” slows on IOC-heavy emails
+- SQLite used for portability â€” PostgreSQL recommended for production
+- Campaign detection tuned for demo volumes â€” threshold may need adjustment at scale
+- YARA scans body text only â€” attachment byte scanning not yet implemented
 
 ## SOC L1 Runbook
 
-See [docs/SOC_L1_RUNBOOK.md](docs/SOC_L1_RUNBOOK.md) — triage procedure, escalation matrix (L1/L2/CISO), NIS2 notification steps.
+See [docs/SOC_L1_RUNBOOK.md](docs/SOC_L1_RUNBOOK.md) â€” triage procedure, escalation matrix (L1/L2/CISO), NIS2 notification steps.
 
 ## Project Structure
 
@@ -194,3 +194,4 @@ phishing-triage/
 ## License
 
 MIT
+
