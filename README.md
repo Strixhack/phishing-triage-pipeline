@@ -1,120 +1,196 @@
-﻿# Phishing Triage Pipeline
+# Phishing Triage Pipeline
 
-Automated phishing email triage platform for SOC teams. Parses `.eml` files, enriches IOCs against VirusTotal, AbuseIPDB, and MISP, scores risk, auto-creates TheHive cases, and provides a React analyst dashboard with NIS2-aligned compliance timers.
+Automated SOC phishing email triage platform. Upload a `.eml` file — the pipeline parses headers, extracts IOCs, enriches them against VirusTotal, AbuseIPDB and MISP, runs YARA rules, maps MITRE ATT&CK techniques, scores risk 0-100, creates a TheHive case, runs Cortex analysers, tracks NIS2 Article 23 deadlines, and detects coordinated phishing campaigns.
 
-## Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend API | Python 3.12 Â· FastAPI Â· SQLAlchemy (async) Â· SQLite |
-| Enrichment | VirusTotal Â· AbuseIPDB Â· MISP (mock stubs included) |
-| Case management | TheHive (mock stub included) |
-| Frontend | React 18 Â· Recharts Â· React Router |
-| Infra | Docker Compose |
-| Compliance | NIS2 Article 23 (24h/72h timers) |
+Built as a portfolio project targeting EU SOC intern and L1 analyst roles.
 
 ## Quick Start
 
 ```bash
-git clone <repo>
-cd phishing-triage
+git clone https://github.com/Strixhack/phishing-triage-pipeline
+cd phishing-triage-pipeline
 cp .env.example .env
 docker compose up --build
 ```
 
-Then open:
-- **Dashboard**: http://localhost:3000
-- **API docs**: http://localhost:8000/api/docs
-- **Mock stubs**: http://localhost:9000/docs
+Open http://localhost:3000
 
-Upload any `.eml` file on the Upload page. The pipeline will parse, enrich, score, and create a TheHive case automatically.
+Sample emails are in `samples/` — upload any `.eml` to get started.
 
-## Architecture
+## Screenshots
+
+### Dashboard — verdict distribution, case stats, recent cases
+![Dashboard](screenshots/dashboard.png)
+
+### Upload — triage result with MITRE ATT&CK mapping and Cortex analysis
+![Upload](screenshots/localhost_3000_upload.png)
+
+### Case Detail — IOC table with real VT/AbuseIPDB scores, audit log, NIS2 status
+![Case Detail](screenshots/localhost_3000_cases.png)
+
+### NIS2 Compliance — Article 23 timers, significant cases sorted by urgency
+![NIS2](screenshots/NIS2.png)
+
+### Campaign Detection — clusters phishing emails by shared IOCs and sender patterns
+![Campaigns](screenshots/localhost_3000_campaigns.png)
+
+### API Documentation — Swagger UI, all endpoints
+![API Docs](screenshots/localhost_8000_api_docs.png)
+
+## What it does
+
+A real phishing email (`sample-1159.eml` from phishing_pot honeypot) scored **38/100 SUSPICIOUS** with:
+
+- URL `https://mail.contianer.best` — **75% VT detections**, flagged **malicious** by Cortex
+- IP `27.112.189.185` — AbuseIPDB score **16**, flagged **suspicious** by Cortex
+- IP `185.189.112.27` — AbuseIPDB score **4**
+- **5 MITRE ATT&CK techniques** mapped: T1566.002, T1071.001, T1204.001, T1566, T1583.001
+- TheHive case **~681377** auto-created
+- **3 IOCs** analysed by Cortex
+
+## Features
+
+| Feature | Details |
+|---|---|
+| Email parsing | SPF/DKIM/DMARC from Authentication-Results header, IOC extraction via regex |
+| IOC types | URLs, IPs (RFC-1918 filtered), domains, SHA256/SHA1/MD5 hashes |
+| Enrichment | VirusTotal v3, AbuseIPDB v2, MISP — async parallel per IOC |
+| YARA scanning | 7 rules: credential harvest, BEC, macro malware, ransomware, dropper, fake login |
+| MITRE ATT&CK | Automatic technique mapping from IOCs, auth results, heuristics, YARA matches |
+| Risk scoring | VT 35% + AbuseIPDB 20% + MISP 20% + Auth 15% + Heuristics 10% = 0-100 |
+| Verdict | BENIGN under 30, SUSPICIOUS 30-54, MALICIOUS 55+ |
+| NIS2 compliance | Article 23: 24h early warning + 72h notification timers, auto-flagged at score 55+ |
+| TheHive | Auto case creation: TLP:AMBER, severity 1-3, tags, enriched IOC summary |
+| Cortex | Top 3 IOCs analysed: VirusTotal_GetReport, URLhaus, DomainTools, Abuse_Finder, MalwareBazaar |
+| Campaign detection | Clusters emails by sender domain similarity, subject template, URL domain overlap |
+| Audit log | Append-only — every action recorded: upload, scoring, TheHive, Cortex, analyst changes |
+| Mock stubs | Full offline demo without API keys, deterministic scores for reproducible demo |
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2.0 async, aiosqlite |
+| Enrichment | VirusTotal v3, AbuseIPDB v2, MISP REST, TheHive REST, Cortex REST |
+| Detection | yara-python, MITRE ATT&CK static mapping |
+| Frontend | React 18, React Router, Recharts, Vite |
+| Infra | Docker Compose — 3 services: API :8000, UI :3000, mock stubs :9000 |
+| Compliance | NIS2 Article 23 (EU 2022/2555) |
+
+## Risk Scoring Model
 
 ```
-.eml file
-    â”‚
-    â–¼
-email_parser.py          â† extracts headers, IOCs, SPF/DKIM/DMARC
-    â”‚
-    â–¼
-enrichment.py            â† queries VT / AbuseIPDB / MISP (or stubs)
-    â”‚
-    â–¼
-risk_scorer.py           â† weighted composite score (0â€“100)
-    â”‚
-    â”œâ”€â”€ SQLite DB         â† cases, IOCs, audit log
-    â”œâ”€â”€ TheHive stub      â† enriched case creation
-    â””â”€â”€ NIS2 service      â† 24h/72h timer computation
-    â”‚
-    â–¼
-FastAPI REST API
-    â”‚
-    â–¼
-React Dashboard          â† triage queue, IOC detail, analyst actions, NIS2 view
+VirusTotal     35%   malicious detections / total engines x 100
+AbuseIPDB      20%   confidence score 0-100
+MISP           20%   attribute hits x 25, capped at 100
+Auth           15%   SPF/DKIM/DMARC fail=40pts, softfail=25pts each
+Heuristics     10%   subject keywords, reply-to mismatch, dangerous attachments
+YARA boost     +15%  of YARA score contribution added on top
 ```
 
-## Switching to Real APIs
+## NIS2 Implementation
 
-Set `USE_MOCK_STUBS=false` in `.env` and fill in your API keys:
+Cases with verdict MALICIOUS or risk score >= 55 are flagged as significant incidents under NIS2 Article 23.
 
-```env
+- `detected_at` recorded at upload time
+- `early_warning_due` = detected_at + 24h
+- `notification_due` = detected_at + 72h
+- NIS2 dashboard shows all significant cases sorted by urgency
+- Overdue cases highlighted in red
+- Analyst clicks Mark as Notified — recorded in immutable audit log
+
+## Campaign Detection
+
+The `/api/campaigns/` endpoint clusters all cases in the database using:
+
+- Sender domain similarity — exact match 1.0, same TLD+1 match 0.5
+- Subject template similarity — token overlap after stripping variable parts (IDs, dates, tokens)
+- URL domain overlap — fraction of shared domains across emails
+
+Cases with combined similarity >= 0.12 are grouped into a campaign. In testing with 26 uploaded emails, 6 campaigns were detected including CAMP-0002 with 7 cases sharing `malware-phish` URL domains.
+
+## Services
+
+| Service | URL |
+|---|---|
+| Dashboard | http://localhost:3000 |
+| API | http://localhost:8000 |
+| Swagger docs | http://localhost:8000/api/docs |
+| Mock stubs | http://localhost:9000 |
+| Stub docs | http://localhost:9000/docs |
+
+## Sample Emails
+
+10 scenarios in `samples/`:
+
+| File | Scenario | Expected Verdict |
+|---|---|---|
+| 01-clean-legitimate.eml | Q3 budget report | BENIGN |
+| 02-suspicious-invoice.eml | Invoice payment fraud | SUSPICIOUS |
+| 03-malicious-phishing.eml | PayPal credential harvest | MALICIOUS |
+| 04-bec-ceo-fraud.eml | CEO wire transfer BEC | SUSPICIOUS |
+| 05-credential-harvest-m365.eml | Microsoft 365 spoof | MALICIOUS |
+| 06-malware-attachment-invoice.eml | .exe dropper delivery | MALICIOUS |
+| 07-delivery-scam-dhl.eml | DHL redelivery scam | SUSPICIOUS |
+| 08-hr-payroll-redirect.eml | Payroll bank redirect | MALICIOUS |
+| 09-legitimate-newsletter.eml | Internal newsletter | BENIGN |
+| 10-it-security-alert-spoof.eml | Ransomware alert spoof | MALICIOUS |
+
+## Live API Mode
+
+Edit `.env`:
+
+```
 USE_MOCK_STUBS=false
-VT_API_KEY=your_key
-ABUSEIPDB_API_KEY=your_key
-MISP_URL=https://your-misp.local
-MISP_API_KEY=your_key
+VT_API_KEY=your_virustotal_key
+ABUSEIPDB_API_KEY=your_abuseipdb_key
+MISP_URL=https://your-misp-instance
+MISP_API_KEY=your_misp_key
 THEHIVE_URL=http://localhost:9001
-THEHIVE_API_KEY=your_key
+THEHIVE_API_KEY=your_thehive_key
+CORTEX_URL=http://localhost:9002
+CORTEX_API_KEY=your_cortex_key
 ```
 
-## Scoring Model
+Free VirusTotal API: 4 requests/minute. Triage of emails with many IOCs will take 30-60 seconds.
 
-| Source | Weight | Notes |
-|--------|--------|-------|
-| VirusTotal | 35% | detections / total engines |
-| AbuseIPDB | 20% | confidence score 0â€“100 |
-| MISP | 20% | 25 points per hit, capped at 100 |
-| Auth (SPF/DKIM/DMARC) | 15% | fail = 40pts each |
-| Heuristics | 10% | subject keywords, reply-to mismatch, dangerous attachments |
+## Known Limitations
 
-**Verdict bands:** 0â€“29 Benign Â· 30â€“59 Suspicious Â· 60â€“100 Malicious
+- Free VT API rate-limited to 4 req/min — slows on IOC-heavy emails
+- SQLite used for portability — PostgreSQL recommended for production
+- Campaign detection tuned for demo volumes — threshold may need adjustment at scale
+- YARA scans body text only — attachment byte scanning not yet implemented
 
-## Running Tests
+## SOC L1 Runbook
 
-```bash
-cd backend
-pip install -r requirements.txt
-pytest tests/ -v
-```
-
-## NIS2 Compliance
-
-Cases with verdict `MALICIOUS` or risk score â‰¥ 60 are flagged as significant incidents under NIS2 Article 23. The platform automatically:
-- Sets a 24h early warning deadline
-- Sets a 72h incident notification deadline
-- Highlights overdue cases in the NIS2 dashboard
-- Records notification status in the immutable audit log
-
-See [docs/SOC_L1_RUNBOOK.md](docs/SOC_L1_RUNBOOK.md) for the full analyst procedure.
+See [docs/SOC_L1_RUNBOOK.md](docs/SOC_L1_RUNBOOK.md) — triage procedure, escalation matrix (L1/L2/CISO), NIS2 notification steps.
 
 ## Project Structure
 
 ```
 phishing-triage/
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ app/
-â”‚   â”‚   â”œâ”€â”€ api/          â† FastAPI route handlers
-â”‚   â”‚   â”œâ”€â”€ core/         â† config, database
-â”‚   â”‚   â”œâ”€â”€ models/       â† SQLAlchemy models
-â”‚   â”‚   â”œâ”€â”€ services/     â† parser, enrichment, scorer, NIS2, TheHive
-â”‚   â”‚   â””â”€â”€ stubs/        â† mock API server
-â”‚   â””â”€â”€ tests/
-â”œâ”€â”€ frontend/
-â”‚   â””â”€â”€ src/
-â”‚       â”œâ”€â”€ api/          â† API client
-â”‚       â””â”€â”€ pages/        â† Dashboard, CaseList, CaseDetail, Upload, NIS2
-â”œâ”€â”€ docs/
-â”‚   â””â”€â”€ SOC_L1_RUNBOOK.md
-â””â”€â”€ docker-compose.yml
+    backend/
+        app/
+            api/           FastAPI route handlers
+            core/          config, database
+            models/        SQLAlchemy models (Case, IOC, AuditLog)
+            services/      email_parser, enrichment, risk_scorer,
+                           yara_scanner, mitre_mapper, nis2,
+                           thehive, cortex, campaign_detector
+            stubs/         mock API server (VT, AbuseIPDB, MISP, TheHive, Cortex)
+        tests/
+        yara_rules/        phishing.yar
+    frontend/
+        src/
+            api/           API client
+            pages/         Dashboard, CaseList, CaseDetail,
+                           Upload, NIS2Dashboard, Campaigns
+    docs/
+        SOC_L1_RUNBOOK.md
+    samples/               10 test .eml files
+    docker-compose.yml
 ```
+
+## License
+
+MIT
