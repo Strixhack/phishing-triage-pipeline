@@ -195,3 +195,38 @@ phishing-triage/
 
 MIT
 
+## Real-World Triage Example
+A real phishing email from the [phishing_pot](https://github.com/rf-peixoto/phishing_pot) honeypot dataset was uploaded with live VirusTotal API enabled.
+![Real Triage Result](docs/screenshots/localhost_3000_upload.png)
+**Results:**
+| Field | Value |
+|---|---|
+| Reference | PT-E5564AEC |
+| Subject | Password Expiry Notification for phishing@pot |
+| Risk Score | 38/100 SUSPICIOUS |
+| IOCs Found | 5 (1 URL, 3 IPs, 1 domain) |
+| TheHive Case | ~681377 auto-created |
+| YARA Matches | 0 |
+| MITRE Techniques | 5 mapped |
+**Score breakdown from live APIs:**
+| Source | Score | Finding |
+|---|---|---|
+| VirusTotal | 38.2 | URL https://mail.contianer.best - real detections |
+| AbuseIPDB | 7 | IP 27.112.189.185 reported |
+| MISP | 75 | threat intel hits |
+| Auth | 45 | SPF/DKIM/DMARC none |
+| Heuristics | 15 | suspicious indicators |
+**MITRE ATT&CK techniques mapped automatically:**
+| Technique | Name | Tactic | Confidence |
+|---|---|---|---|
+| T1566.002 | Phishing: Spearphishing Link | Initial Access | high |
+| T1071.001 | Application Layer Protocol: Web Protocols | Command and Control | medium |
+| T1204.001 | User Execution: Malicious Link | Execution | medium |
+| T1566 | Phishing | Initial Access | medium |
+| T1583.001 | Acquire Infrastructure: Domains | Resource Development | low |
+**Cortex analysis of top 3 IOCs:**
+| Type | IOC | Result |
+|---|---|---|
+| url | https://mail.contianer.best/international.html | malicious |
+| ip | 27.112.189.185 | suspicious |
+| ip | 185.189.112.27 | safe |
